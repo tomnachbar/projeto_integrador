@@ -1,40 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site </title>
-    <style>
-        body{
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vitrine de Soluções</title>
+<style>
+        body {
             font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(to right, rgb(20,147,220), rgb(17,54,71));
-            text-align: center;
-            color: white;
+            margin: 0;
+            padding: 0;
+            background-image: url('Fundo.jpg');
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
         }
-        .box{
+ 
+        body::before {
+            content: "";
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0,0,0,0.6);
-            padding:30px;
-            border-radius: 10px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7); /* leve camada branca para dar contraste */
+            z-index: -1;
         }
-        a{
-            text-decoration:none;
-            color:white;
-            border: 3px solid dodgerblue;
-            border-radius: 10px;
-            padding: 10px;
+ 
+        .header {
+            text-align: center;
+            margin-top: 50px;
+            color: #000;
+            z-index: 1;
         }
-        a:hover{
-            background-color: dodgerblue;
+ 
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 0;
         }
-    </style>
+ 
+        .header h2 {
+            font-size: 28px;
+            margin-top: 10px;
+        }
+ 
+        .container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 50px;
+            z-index: 1;
+        }
+ 
+        .box {
+            width: 45%;
+            max-width: 400px;
+            padding: 20px;
+            border: 2px solid #000;
+            background-color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+ 
+        .box h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+ 
+        .button {
+            display: block;
+            width: 80%;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(211, 211, 211, 0.7);
+            border-radius: 50px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+ 
+        .button:hover {
+            background-color: rgba(169, 169, 169, 0.9);
+            transform: translateY(-2px);
+        }
+ 
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 16px;
+            color: #000;
+            text-align: center;
+            width: 100%;
+            z-index: 1;
+        }
+</style>
 </head>
 <body>
-    <div class="box">
-        <a href="PI_Login.php">Login</a>
-        <a href="PI_Cadastro.php">Cadastre-se</a>
-</body>
-</html>
+<div class="header">
+<h1>Vitrine de Soluções</h1>
+<h2>Produtos e Serviços</h2>
+</div>
+ 
+    <div class="container">
+<div class="box">
+<h3>CADASTROS</h3>
+<a href="Cadastro_Morador.php" class="button">Cadastro Morador</a>
+<a href="Cadastro_Fornecedor.php" class="button">Cadastro Fornecedor</a>
+</div>
+ 
+        <div class="box">
+<h3>Área de acesso</h3>
+<a href="Acesso_Morador.php" class="button">Acesso Morador</a>
+<a href="Acesso_Fornecedor.php" class="button">Acesso Fornecedor</a>
+</div>
+</div>
