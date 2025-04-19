@@ -1,7 +1,7 @@
 <img src="https://user-images.githubusercontent.com/50468352/141820811-412e9364-7f5c-4889-826a-fcba23b92e23.png" width="350" />
 <h3>Projeto Integrador em Computação I - 2025</h3>
 
-**Polos: Sumaré, Indaiatuba, Campo Limpo Paulista, Atibaia, Mogi Mirim e Americana** </br>
+**Polos: Sumaré, Indaiatuba, Campo Limpo Paulista, Mogi Mirim e Americana** </br>
 
 **Orientadora do PI: Maria Vitória Soares Lima** </br>
 
@@ -15,7 +15,6 @@
 |FLAVIO JORGE DE MEDEIROS, 23205233     |
 |JOAO FELIPE B. BRANDAO, 23201444       |
 |RODRIGO MARQUES DA SILVA, 22222722     |
-|VANESSA DOS SANTOS LEME, 23210732      |
 
 </br>
 
