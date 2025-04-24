@@ -25,9 +25,9 @@
 <summary> 🟡 Sobre o problema encontrado</summary>
   </br>
   <p>
-    Atualmente....
+    Trata-se da falta de um canal de informação que torne acessível atender as necessidades dos moradores no que tange o aspecto de produtos e de serviços.
   </p>
-  <img src="" />
+ 
 </details>  
 
 ---
