@@ -48,14 +48,14 @@ Em outras palavras, é transformar o condomínio em um ambiente mais funcional, 
 <details>
 <summary> 🟡 Estrutura do projeto</summary>
   </br>
-  <img src="" />
+  <img src="PI_1/Workflow.png" />
   </br>
   </br>
   
-|<b>Prototipagem do banco de dados</b>                                                                               |
+|<b>Workflow de Funcionamento e Prototipagem do banco de dados</b>                                                                               |
 |:-------------------------------------------------------------------------------------------------------------------|
-|Diagrama do modelo de design do banco de dados.                           |
-|<img src="" /> |
+|Fluxograma do Funcionamento de Sistema.                           |
+|<img src="PI_1/Workflow.png"/> |
 </details>  
 
 ---
