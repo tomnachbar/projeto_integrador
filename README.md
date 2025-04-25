@@ -48,14 +48,9 @@ Em outras palavras, é transformar o condomínio em um ambiente mais funcional, 
 <details>
 <summary> 🟡 Estrutura do projeto</summary>
   </br>
+  Workflow do Funcionamento e Modelagem de Relacionamento de Banco de Dados </br>
   <img src="PI_1/Workflow.png" />
   </br>
-  </br>
-  
-|<b>Workflow de Funcionamento e Prototipagem do banco de dados</b>                                                                               |
-|:-------------------------------------------------------------------------------------------------------------------|
-|Fluxograma do Funcionamento de Sistema.                           |
-|<img src="PI_1/Workflow.png"/> |
 </details>  
 
 ---
