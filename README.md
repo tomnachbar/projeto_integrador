@@ -49,7 +49,7 @@ Em outras palavras, é transformar o condomínio em um ambiente mais funcional, 
 <summary> 🟡 Estrutura do projeto</summary>
   </br>
   Workflow do Funcionamento e Modelagem de Relacionamento de Banco de Dados </br>
-  <img src="PI_1/Workflow.png" />
+  <img src="projeto_integrador_1/Workflow.png" />
   </br>
 </details>  
 
