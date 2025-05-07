@@ -40,7 +40,7 @@ A solução encontrada foi o desenvolvimento de um sistema de API (Application P
 Em outras palavras, é transformar o condomínio em um ambiente mais funcional, conectado e colaborativo, onde os moradores tenham suas necessidades atendidas de forma prática, segura e eficiente, enquanto fortalecem os laços comunitários e adotam práticas mais sustentáveis
 .
 </p>
-<img src="projeto_integrador_1/vitrine.jpg" />
+<img src="projeto_integrador_1/vitrine.jpeg" />
 </details>
 
 ---
