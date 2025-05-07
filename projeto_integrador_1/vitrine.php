@@ -286,8 +286,7 @@ background-color: white;
     </div>
 </div>
 <div style="text-align: center; margin-top: 20px;">
-    <a href="sistema.php" class="botao" style="text-decoration: none; padding: 10px 20px; display: inline-block;">Voltar</a>
-</div>
+    <a href="sistema.php" class="botao" style="text-decoration: none; padding: 10px 20px; background-color: #2c3e50; color: white; border-radius: 5px; display: inline-block;">Voltar</a>
 
 </a>
 
