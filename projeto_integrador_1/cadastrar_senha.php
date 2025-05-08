@@ -4,60 +4,78 @@ session_start();
 
 // Verifica se as variáveis de sessão existem
 if (!isset($_SESSION['email']) || !isset($_SESSION['tipo_usuario'])) {
-    echo "Acesso inválido.";
+    header("Location: recuperar_senha.php");
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+$email = $_SESSION['email'];
+$tipoUsuario = $_SESSION['tipo_usuario'];
+$mensagem = "";
+$redirecionarApos = false;
+
+// Define tabela e login conforme tipo de usuário
+if ($tipoUsuario === 'morador') {
+    $tabela = 'usuarios';
+    $paginaLogin = 'login_morador.php';
+} elseif ($tipoUsuario === 'prestador') {
+    $tabela = 'prestadores';
+    $paginaLogin = 'login_fornecedor.php';
+} else {
+    header("Location: recuperar_senha.php");
+    exit;
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $novaSenha = $_POST['senha'];
     $confirmarSenha = $_POST['confirmar_senha'];
 
     if ($novaSenha === $confirmarSenha) {
-        $email = $_SESSION['email'];  // capturado anteriormente
-        $tipoUsuario = $_SESSION['tipo_usuario']; // 'morador' ou 'prestador'
 
-        // Atualizar a senha no banco de dados com base no tipo de usuário
-        if ($tipoUsuario === 'morador') {
-            $sql = "UPDATE usuarios SET senha = ? WHERE email = ?";
-        } elseif ($tipoUsuario === 'prestador') {
-            $sql = "UPDATE prestadores SET senha = ? WHERE email = ?";
+        // Verifica a senha atual no banco de dados
+        $sqlBusca = "SELECT senha FROM $tabela WHERE email = ?";
+        $stmtBusca = $conn->prepare($sqlBusca);
+        $stmtBusca->bind_param("s", $email);
+        $stmtBusca->execute();
+        $stmtBusca->bind_result($senhaAtual);
+        $stmtBusca->fetch();
+        $stmtBusca->close();
+
+        // Verifica se a nova senha é igual à anterior
+        if ($novaSenha === $senhaAtual) {
+            $mensagem = "Senha não pode ser igual à anterior.";
         } else {
-            echo "Tipo de usuário inválido.";
-            exit;
+            // Atualiza com a nova senha (sem hash, como no seu padrão)
+            $sql = "UPDATE $tabela SET senha = ? WHERE email = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $novaSenha, $email);
+            $stmt->execute();
+
+            if ($stmt->error) {
+                $mensagem = "Erro ao atualizar senha: " . $stmt->error;
+            } else {
+                unset($_SESSION['email']);
+                unset($_SESSION['tipo_usuario']);
+                $mensagem = "Senha atualizada com sucesso!";
+                $redirecionarApos = true;
+                $baseUrl = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']);
+                $redirectUrl = rtrim($baseUrl, '/') . '/' . $paginaLogin;
+            }
+
+            $stmt->close();
         }
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $novaSenha, $email);
-        $stmt->execute();
-
-        if ($stmt->affected_rows > 0) {
-            // Redirecionar com mensagem de sucesso
-            echo "<script>
-                    alert('Senha atualizada com sucesso!');
-                    window.location.href = 'login.php';
-                  </script>";
-        } else {
-            echo "<script>
-                    alert('Senha não pode ser igual a anterior!');
-                    window.location.href = 'cadastrar_senha.php';
-                  </script>";
-        }
-
-        $stmt->close();
-        $conn->close();
     } else {
-        echo "<script>
-                alert('As senhas não coincidem. Tente novamente.');
-                window.location.href = 'cadastrar_senha.php';
-              </script>";
+        $mensagem = "As senhas não coincidem. Tente novamente.";
     }
-} 
+
+    $conn->close();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Nova Senha</title>
     <style>
         body {
@@ -126,6 +144,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-decoration: underline;
         }
     </style>
+    <?php if (!empty($mensagem)): ?>
+    <script>
+        // Este script será executado quando a página carregar
+        window.onload = function() {
+            alert("<?php echo $mensagem; ?>");
+            <?php if ($redirecionarApos): ?>
+            // Redireciona após o alerta fechar
+            window.location.href = "<?php echo $redirectUrl; ?>";
+            <?php endif; ?>
+        };
+    </script>
+    <?php endif; ?>
 </head>
 <body>
     <div class="container">
@@ -139,5 +169,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </body>
 </html>
-
-
