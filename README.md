@@ -18,7 +18,7 @@
 
 </br>
 
-<h4> 📚 Projeto Vitrine de Soluções: Produtos e Serviços para o Dia a Dia no Condomínio</h4>
+<h4> 📚 PROJETO VITRINE COMUNITÁRIA DIGITAL: SISTEMA WEB PARA OFERTA DE SERVIÇOS E PRODUTOS EM CONDOMÍNIOS</h4>
 
 ---
 <details>
