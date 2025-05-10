@@ -1,13 +1,65 @@
 <?php
 require 'config.php';
 
+// Agrupamento de categorias em divisões
+$divisoes = [
+    'Manutenção' => [
+        'Serviços Elétricos',
+        'Serviços Hidráulicos',
+        'Pequenos Reparos (Marido de Aluguel)',
+        'Técnico de Informática',
+        'Conserto de Eletrodomésticos',
+        'Encanador',
+        'Jardinagem',
+        'Limpeza',
+        'Serviços de Chaveiro'
+    ],
+    'Reforma' => [
+        'Reforma em Geral',
+        'Serviços de Pintura',
+        'Montador de Móveis',
+        'Gesseiro',
+        'Soldador'
+    ],
+    'Beleza' => [
+        'Cabeleireira',
+        'Barbearia',
+        'Manicure e Pedicure',
+        'Massagem e Estética',
+        'Costureira / Ajustes de Roupas'
+    ],
+    'Alimentação' => [
+        'Doces e Bolos',
+        'Marmitas / Comida Caseira',
+        'Produtos Naturais / Fitoterápicos'
+    ],
+    'Administrativo' => [
+        'Aulas Particulares (reforço escolar, idiomas)',
+        'Personal Trainer',
+        'Passeador de Cães / Pet Sitter',
+        'Fotografia e Filmagem',
+        'Transporte / Frete / Carretos',
+        'Cuidador de Idosos',
+        'Babá / Cuidadora Infantil',
+        'Artesanato / Produtos Artesanais',
+        'Bijuterias / Acessórios'
+    ]
+];
 
+// Lista completa de categorias
+$todas_categorias = [];
+foreach ($divisoes as $categorias) {
+    $todas_categorias = array_merge($todas_categorias, $categorias);
+}
+
+// Consulta SQL com média das avaliações
 $queryPrestadores = "
 SELECT 
     p.nome_razao_social AS nome_prestador,
-    p.email as email,
-    p.telefone as telefone,	
-    ps.tipo_servico AS nome_servico,	
+    p.email,
+    p.telefone,
+    p.tipo_servico AS categoria, 
+    ps.nome_produto_servico AS subcategoria,
     ps.valor,
     AVG(a.nota) AS media_avaliacao
 FROM prestadores p
@@ -15,399 +67,402 @@ JOIN produto_servico ps ON p.tipo_servico = ps.tipo_servico
 LEFT JOIN avaliacoes a ON a.prestador_id = p.id
 GROUP BY p.id, ps.id;
 ";
-$resultadoPrestadores = mysqli_query($conn, $queryPrestadores);
 
-// Organizando os dados dos prestadores em um array
+$resultadoPrestadores = mysqli_query($conn, $queryPrestadores);
 $produtos = [];
 
 while ($linha = mysqli_fetch_assoc($resultadoPrestadores)) {
     $produtos[] = [
-        'icone' => '⚙️',
-        'fornecedor' => $linha['nome_prestador'],  // CORRIGIDO
-        'descricao' => $linha['nome_servico'],     // CORRIGIDO
+        'nome' => $linha['nome_prestador'],
+        'email' => $linha['email'],
+        'telefone' => $linha['telefone'],
+        'categoria' => $linha['categoria'],
+        'subcategoria' => $linha['subcategoria'],
         'valor' => $linha['valor'],
-        'avaliacao' => number_format($linha['media_avaliacao'], 1, '.', ''), // CORRIGIDO
-        'email' => $linha['email'] ?? '',
-	'telefone' => $linha['telefone'] ?? '',
-        'categoria' => 'Serviço',
-        'subcategoria' => $linha['nome_servico']
+        'avaliacao' => number_format($linha['media_avaliacao'], 1)
     ];
 }
 
-$categorias = [
-    'Serviços Elétricos',
-    'Serviços Hidráulicos',
-    'Reforma em Geral',
-    'Jardinagem',
-    'Limpeza',
-    'Pequenos Reparos (Marido de Aluguel)',
-    'Cabeleireira',
-    'Barbearia',
-    'Manicure e Pedicure',
-    'Massagem e Estética',
-    'Aulas Particulares (reforço escolar, idiomas)',
-    'Personal Trainer',
-    'Passeador de Cães / Pet Sitter',
-    'Técnico de Informática',
-    'Conserto de Eletrodomésticos',
-    'Costureira / Ajustes de Roupas',
-    'Serviços de Pintura',
-    'Montador de Móveis',
-    'Gesseiro',
-    'Encanador',
-    'Soldador',
-    'Fotografia e Filmagem',
-    'Transporte / Frete / Carretos',
-    'Serviços de Chaveiro',
-    'Cuidador de Idosos',
-    'Babá / Cuidadora Infantil',
-    'Doces e Bolos',
-    'Marmitas / Comida Caseira',
-    'Produtos Naturais / Fitoterápicos',
-    'Artesanato / Produtos Artesanais',
-    'Bijuterias / Acessórios'
-];
-
+// Obtém subcategorias únicas do resultado da consulta
 $subcategorias = array_unique(array_column($produtos, 'subcategoria'));
 ?>
 
 <!DOCTYPE html>
-
 <html lang="pt-br">
 <head>
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vitrine de Soluções - Portal do Lago</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Vitrine de Soluções</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #dceaf5;
-            background-size: cover;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #333;
+        body { 
+            background-color: #dceaf5; 
         }
-        h1, h2 {
-            text-align: center;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-        u {
-            text-decoration: underline;
-        }
-        .filtro {
-            background-color: #f8f9fa;
-            padding: 20px;
+        .produto-card {
+            background-color: #fff;
             border-radius: 15px;
             box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            padding: 15px;
             margin-bottom: 20px;
         }
-        .filtro h4 {
-            margin-bottom: 15px;
-            font-weight: bold;
-            border-bottom: 2px solid #2c3e50;
-            padding-bottom: 8px;
-        }
-        .filtro-grupo {
-            margin-bottom: 15px;
-        }
-        .filtro-grupo label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-        .filtro button {
-            background-color: #2c3e50;
+        .tag {
+            font-size: 12px;
+            background: #2c3e50;
             color: white;
-            border: none;
-            padding: 8px 15px;
+            border-radius: 8px;
+            padding: 3px 7px;
+        }
+        .divisao-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .filtros-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .btn-ver-prestadores {
+            background-color: #fff;
+            color: #2c3e50;
+            border: 1px solid #2c3e50;
             border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            padding: 8px 15px;
+            transition: all 0.3s;
+        }
+        .btn-ver-prestadores:hover {
+            background-color: #2c3e50;
+            color: #fff;
+        }
+        .btn-aplicar {
+            background-color: #2c3e50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
             width: 100%;
-            margin-top: 10px;
+            margin-bottom: 10px;
         }
-        .filtro button:hover {
-            background-color: #1a252f;
+        .btn-limpar {
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            width: 100%;
         }
-        .barra-pesquisa {
-            position: relative;
+        .search-container {
             margin-bottom: 30px;
         }
-        .barra-pesquisa input {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            border-radius: 25px;
-            border: 2px solid #2c3e50;
-            outline: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .search-box {
+            border-radius: 5px;
+            padding: 10px;
+            border: 1px solid #ced4da;
         }
-        .barra-pesquisa .icone-pesquisa {
-            position: absolute;
-            right: 15px;
-            top: 12px;
-            color: #2c3e50;
+        .btn-buscar {
+            background-color: #2c3e50;
+            color: #fff;
         }
-        .vitrine {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 20px;
+        .results-container {
+            background-color: #e8f4ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
-   .produto {
-    width: 250px; /* Aumentando a largura para acomodar mais texto */
-    height: auto; /* Permitindo altura dinâmica */
-    background-color: #f8f9fa;
-    border-radius: 15px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-    font-size: 13px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    transition: transform 0.3s ease;
-    overflow: hidden;
-}
-
-.produto\:hover {
-transform: translateY(-5px);
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.produto-icone {
-font-size: 36px;
-margin-bottom: 10px;
-}
-
-.produto p {
-margin: 5px 0;
-text-align: left;
-word-wrap: break-word;
-overflow-wrap: break-word;
-width: 100%;
-white-space: normal;
-font-size: 12px; /\* Ajustando o tamanho da fonte para caber melhor \*/
-}
-
-.tag {
-display: inline-block;
-background-color: #2c3e50;
-color: white;
-padding: 2px 8px;
-border-radius: 10px;
-font-size: 10px;
-margin-bottom: 5px;
-}
-
-.sem-resultados {
-width: 100%;
-text-align: center;
-padding: 30px;
-background-color: #f8f9fa;
-border-radius: 15px;
-font-weight: bold;
-}
-
-/\* Adicionando uma borda fina para as tags de informações como fornecedor, valor, etc. \*/
-.produto p strong {
-color: #2c3e50;
-font-weight: bold;
-}
-select {
-width: 100%;
-padding: 8px;
-border-radius: 5px;
-border: 1px solid #ced4da;
-background-color: white;
-} </style>
-
+        .btn-voltar {
+            background-color: #2c3e50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-voltar:hover {
+            background-color: #1a252f;
+            color: #fff;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
+<div class="container my-4">
+    <!-- Botão Voltar para sistema.php -->
+    <div class="row">
+        <div class="col-12">
+            <a href="sistema.php" class="btn-voltar">← Voltar</a>
+        </div>
+    </div>
 
-<div class="container mt-4 mb-5">
-    <h1>VITRINE DE SOLUÇÕES</h1>
-    <h2>RESIDENCIAL PORTAL DO LAGO</h2>
-    
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="barra-pesquisa">
-                <input type="text" id="pesquisa" placeholder="Buscar por fornecedor, serviço ou produto..." onkeyup="filtrarProdutos()">
-                <span class="icone-pesquisa"><i class="fas fa-search"></i></span>
-            </div>
+    <h1 class="text-center mb-4">Vitrine de Soluções</h1>
+
+    <!-- Barra de busca -->
+    <div class="row search-container">
+        <div class="col-md-10">
+            <input type="text" class="form-control search-box" placeholder="Buscar por fornecedor, serviço ou produto..." id="buscaInput" oninput="filtrarEmTempoReal()">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-buscar w-100" onclick="filtrar()">Buscar</button>
         </div>
     </div>
 
     <div class="row">
+        <!-- Filtros -->
         <div class="col-md-3">
-            <div class="filtro">
-                <h4>FILTROS</h4>
+            <div class="filtros-card">
+                <h4 class="mb-4">Filtros</h4>
                 
-                <div class="filtro-grupo">
-                    <label for="categoria">Categoria:</label>
-                    <select id="categoria" onchange="filtrarProdutos()">
+                <div class="mb-3">
+                    <label for="filtroCategoria" class="form-label fw-bold">Categoria:</label>
+                    <select id="filtroCategoria" class="form-select" onchange="filtrarEmTempoReal()">
                         <option value="">Todas</option>
-                        <?php foreach($categorias as $categoria): ?>
-                            <option value="<?= $categoria ?>"><?= $categoria ?></option>
+                        <?php foreach ($todas_categorias as $cat): ?>
+                            <option value="<?= $cat ?>"><?= $cat ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 
-                <div class="filtro-grupo">
-                    <label for="subcategoria">Tipo:</label>
-                    <select id="subcategoria" onchange="filtrarProdutos()">
+                <div class="mb-3">
+                    <label for="filtroSubcategoria" class="form-label fw-bold">Tipo:</label>
+                    <select id="filtroSubcategoria" class="form-select" onchange="filtrarEmTempoReal()">
                         <option value="">Todos</option>
-                        <?php foreach($subcategorias as $subcategoria): ?>
-   			 <option value="<?= $subcategoria ?>"><?= $subcategoria ?></option>
-			<?php endforeach; ?>
+                        <?php foreach ($subcategorias as $sub): ?>
+                            <option value="<?= $sub ?>"><?= $sub ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 
-                <div class="filtro-grupo">
-                    <label for="ordenacao">Ordenar por:</label>
-                    <select id="ordenacao" onchange="filtrarProdutos()">
+                <div class="mb-4">
+                    <label for="ordenarSelect" class="form-label fw-bold">Ordenar por:</label>
+                    <select id="ordenarSelect" class="form-select" onchange="filtrarEmTempoReal()">
                         <option value="">Sem ordenação</option>
-                        <option value="avaliacao-desc">Melhor avaliação</option>
+                        <option value="avaliacao">Melhor avaliação</option>
                         <option value="valor-asc">Menor valor</option>
                         <option value="valor-desc">Maior valor</option>
-                        <option value="fornecedor-asc">Fornecedor (A-Z)</option>
                     </select>
                 </div>
                 
-                <button onclick="limparFiltros()">LIMPAR FILTROS</button>
+                <button class="btn btn-aplicar" onclick="filtrar()">Aplicar Filtros</button>
+                <button class="btn btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
             </div>
         </div>
-
+        
+        <!-- Conteúdo principal -->
         <div class="col-md-9">
-            <div id="vitrine" class="vitrine"></div>
+            <!-- Divisões de categorias em cards -->
+            <div id="divisoesView" class="row">
+                <?php foreach ($divisoes as $nome_divisao => $categorias): ?>
+                <div class="col-md-6 mb-4">
+                    <div class="divisao-card">
+                        <h3 class="mb-4"><?= $nome_divisao ?></h3>
+                        <button class="btn btn-ver-prestadores" onclick="filtrarPorDivisao('<?= $nome_divisao ?>')">Ver Prestadores</button>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- Container de resultados de busca/filtro (inicialmente oculto) -->
+            <div id="resultadosView" class="row" style="display: none;">
+                <div class="mb-3">
+                    <button class="btn btn-secondary" onclick="voltarParaDivisoes()">← Voltar para categorias</button>
+                    <h4 class="mt-3">Resultados da pesquisa</h4>
+                </div>
+                <div id="produtosContainer" class="row">
+                    <!-- Produtos filtrados aparecerão aqui -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div style="text-align: center; margin-top: 20px;">
-    <a href="sistema.php" class="botao" style="text-decoration: none; padding: 10px 20px; background-color: #2c3e50; color: white; border-radius: 5px; display: inline-block;">Voltar</a>
 
-</a>
+<!-- Container oculto com todos os produtos -->
+<div class="d-none" id="todosProdutos">
+    <?php foreach ($produtos as $p): ?>
+        <div class="col-md-6 produto" 
+             data-categoria="<?= $p['categoria'] ?>" 
+             data-subcategoria="<?= $p['subcategoria'] ?>"
+             data-nome="<?= $p['nome'] ?>"
+             data-valor="<?= $p['valor'] ?>"
+             data-avaliacao="<?= $p['avaliacao'] ?>">
+            <div class="produto-card">
+                <span class="tag"><?= htmlspecialchars($p['categoria']) ?></span>
+                <h5 class="mt-2"><?= htmlspecialchars($p['nome']) ?></h5>
+                <p><strong>Serviço:</strong> <?= htmlspecialchars($p['subcategoria']) ?></p>
+                <p><strong>Valor:</strong> <?= $p['valor'] ? 'R$ ' . number_format($p['valor'], 2, ',', '.') : 'A consultar' ?></p>
+                <p><strong>Avaliação:</strong> <?= $p['avaliacao'] ?>/5</p>
+                <p><strong>Telefone:</strong> <?= htmlspecialchars($p['telefone']) ?></p>
+                <p><strong>Email:</strong> <?= htmlspecialchars($p['email']) ?></p>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
 
 <script>
+// Mapeamento de divisões para categorias
+const divisoesParaCategorias = {
+    'Manutenção': <?= json_encode($divisoes['Manutenção']) ?>,
+    'Reforma': <?= json_encode($divisoes['Reforma']) ?>,
+    'Beleza': <?= json_encode($divisoes['Beleza']) ?>,
+    'Alimentação': <?= json_encode($divisoes['Alimentação']) ?>,
+    'Administrativo': <?= json_encode($divisoes['Administrativo']) ?>
+};
+
+// Variável para controlar o timeout da busca em tempo real
+let timeoutBusca = null;
+
+// Função para busca em tempo real com pequeno delay
+function filtrarEmTempoReal() {
+    // Limpa o timeout anterior se existir
+    if (timeoutBusca) {
+        clearTimeout(timeoutBusca);
+    }
     
-    const produtos = <?php echo json_encode($produtos); ?>;
-    
-    
-    function renderizarProdutos(lista) {
-        const vitrine = document.getElementById('vitrine');
-        vitrine.innerHTML = '';
+    // Define um novo timeout para evitar muitas buscas enquanto o usuário digita
+    timeoutBusca = setTimeout(() => {
+        const busca = document.getElementById('buscaInput').value;
         
-        if (lista.length === 0) {
-            vitrine.innerHTML = '<div class="sem-resultados">Nenhum resultado encontrado</div>';
+        // Se o campo de busca estiver vazio e nenhum filtro estiver aplicado, volta para divisões
+        if (!busca && 
+            document.getElementById('filtroCategoria').value === '' && 
+            document.getElementById('filtroSubcategoria').value === '' &&
+            document.getElementById('ordenarSelect').value === '') {
+            voltarParaDivisoes();
             return;
         }
         
-        lista.forEach(produto => {
-            const produtoEl = document.createElement('div');
-            produtoEl.className = 'produto';
-            produtoEl.innerHTML = `
-                <div class="produto-icone">${produto.icone}</div>
-                <div class="tag">${produto.categoria} - ${produto.subcategoria}</div>
-                <p style="margin: 5px 0; text-align: left;"><strong>Fornecedor:</strong> ${produto.fornecedor}</p>
-                <p style="margin: 5px 0; text-align: left; overflow-wrap: break-word;"><strong>Descrição:</strong> ${produto.descricao}</p>
-                <p style="margin: 5px 0; text-align: left;"><strong>Valor:</strong> R$ ${produto.valor}</p>
-                <p style="margin: 5px 0; text-align: left;"><strong>Avaliação:</strong> ${produto.avaliacao}</p>
-	    <p style="margin: 5px 0; text-align: left;"><strong>E-mail:</strong> ${produto.email}</p>
-                <p style="margin: 5px 0; text-align: left;"><strong>Telefone:</strong> ${produto.telefone}</p>
-            `;
-            vitrine.appendChild(produtoEl);
-        });
+        // Se houver algo para buscar, executa a filtragem
+        filtrar();
+    }, 300); // Delay de 300ms
+}
+
+function filtrarPorDivisao(divisao) {
+    // Limpa os filtros atuais
+    document.getElementById('buscaInput').value = '';
+    document.getElementById('filtroSubcategoria').value = '';
+    document.getElementById('ordenarSelect').value = '';
+    
+    // Atualiza o select de categoria com a primeira categoria da divisão
+    const categoriasNaDivisao = divisoesParaCategorias[divisao];
+    if (categoriasNaDivisao && categoriasNaDivisao.length > 0) {
+        document.getElementById('filtroCategoria').value = '';
     }
     
+    // Mostra a vista de resultados e oculta a vista de divisões
+    document.getElementById('divisoesView').style.display = 'none';
+    document.getElementById('resultadosView').style.display = 'block';
     
-    function filtrarProdutos() {
-        const termo = document.getElementById('pesquisa').value.toLowerCase();
-        const categoria = document.getElementById('categoria').value;
-        const subcategoria = document.getElementById('subcategoria').value;
-        const ordenacao = document.getElementById('ordenacao').value;
-        
-        let produtosFiltrados = produtos.filter(produto => {
-            const matchTermo = 
-                produto.fornecedor.toLowerCase().includes(termo) || 
-                produto.descricao.toLowerCase().includes(termo) ||
-                produto.categoria.toLowerCase().includes(termo) ||
-                produto.subcategoria.toLowerCase().includes(termo);
-                
-            const matchCategoria = categoria === '' || produto.categoria === categoria;
-            const matchSubcategoria = subcategoria === '' || produto.subcategoria === subcategoria;
-            
-            return matchTermo && matchCategoria && matchSubcategoria;
-        });
-        
-        
-        if (ordenacao) {
-            produtosFiltrados = ordenarProdutos(produtosFiltrados, ordenacao);
-        }
-        
-        renderizarProdutos(produtosFiltrados);
+    // Filtra os produtos pela divisão
+    filtrarProdutosPorDivisao(divisao);
+}
+
+function filtrarProdutosPorDivisao(divisao) {
+    const categoriasNaDivisao = divisoesParaCategorias[divisao];
+    const cards = Array.from(document.querySelectorAll('#todosProdutos .produto'));
+    
+    let filtrados = cards.filter(card => {
+        const categoria = card.dataset.categoria;
+        return categoriasNaDivisao.includes(categoria);
+    });
+    
+    exibirResultados(filtrados);
+}
+
+function voltarParaDivisoes() {
+    // Mostra a vista de divisões e oculta a vista de resultados
+    document.getElementById('divisoesView').style.display = 'flex';
+    document.getElementById('resultadosView').style.display = 'none';
+    
+    // Limpa os filtros
+    limparFiltros();
+}
+
+function filtrar() {
+    const busca = document.getElementById('buscaInput').value.toLowerCase();
+    const categoria = document.getElementById('filtroCategoria').value;
+    const subcategoria = document.getElementById('filtroSubcategoria').value;
+    const ordenar = document.getElementById('ordenarSelect').value;
+    
+    // Obtém todos os cards de produto
+    const cards = Array.from(document.querySelectorAll('#todosProdutos .produto'));
+    
+    // Verifica se algum filtro foi aplicado
+    const filtroAplicado = busca !== '' || categoria !== '' || subcategoria !== '';
+    
+    // Se nenhum filtro foi aplicado, retorna para a visualização de divisões
+    if (!filtroAplicado && ordenar === '') {
+        voltarParaDivisoes();
+        return;
     }
-    
-    
-    function ordenarProdutos(lista, criterio) {
-        const listaOrdenada = [...lista];
+
+    let filtrados = cards.filter(card => {
+        const nome = card.dataset.nome.toLowerCase();
+        const cat = card.dataset.categoria;
+        const sub = card.dataset.subcategoria.toLowerCase();
         
-        switch (criterio) {
-            case 'avaliacao-desc':
-                listaOrdenada.sort((a, b) => {
-                    const avalA = parseInt(a.avaliacao.split('/')[0]);
-                    const avalB = parseInt(b.avaliacao.split('/')[0]);
-                    return avalB - avalA;
-                });
-                break;
-            case 'valor-asc':
-                listaOrdenada.sort((a, b) => {
-                    const valorA = converterValorParaNumero(a.valor);
-                    const valorB = converterValorParaNumero(b.valor);
-                    return valorA - valorB;
-                });
-                break;
-            case 'valor-desc':
-                listaOrdenada.sort((a, b) => {
-                    const valorA = converterValorParaNumero(a.valor);
-                    const valorB = converterValorParaNumero(b.valor);
-                    return valorB - valorA;
-                });
-                break;
-            case 'fornecedor-asc':
-                listaOrdenada.sort((a, b) => a.fornecedor.localeCompare(b.fornecedor));
-                break;
-        }
-        
-        return listaOrdenada;
-    }
-    
-    
-    function converterValorParaNumero(valor) {
-        if (valor === 'Orçamento') return 0;
-        if (valor.includes('A partir de')) {
-            return parseFloat(valor.replace('A partir de ', '').replace(',', '.'));
-        }
-        return parseFloat(valor.replace(',', '.'));
-    }
-    
-    
-    function limparFiltros() {
-        document.getElementById('pesquisa').value = '';
-        document.getElementById('categoria').value = '';
-        document.getElementById('subcategoria').value = '';
-        document.getElementById('ordenacao').value = '';
-        filtrarProdutos();
-    }
-    
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        renderizarProdutos(produtos);
+        return (
+            (!busca || nome.includes(busca) || cat.toLowerCase().includes(busca) || sub.includes(busca)) &&
+            (!categoria || cat === categoria) &&
+            (!subcategoria || sub === subcategoria)
+        );
     });
 
+    // Ordenação
+    if (ordenar === 'avaliacao') {
+        filtrados.sort((a, b) => parseFloat(b.dataset.avaliacao) - parseFloat(a.dataset.avaliacao));
+    } else if (ordenar === 'valor-asc') {
+        filtrados.sort((a, b) => parseFloat(a.dataset.valor || 0) - parseFloat(b.dataset.valor || 0));
+    } else if (ordenar === 'valor-desc') {
+        filtrados.sort((a, b) => parseFloat(b.dataset.valor || 0) - parseFloat(a.dataset.valor || 0));
+    }
+
+    // Mostra a vista de resultados e oculta a vista de divisões
+    document.getElementById('divisoesView').style.display = 'none';
+    document.getElementById('resultadosView').style.display = 'block';
+    
+    exibirResultados(filtrados);
+}
+
+function exibirResultados(filtrados) {
+    const container = document.getElementById('produtosContainer');
+    container.innerHTML = '';
+    
+    if (filtrados.length > 0) {
+        filtrados.forEach(card => {
+            // Clona o card para não removê-lo do container original
+            container.appendChild(card.cloneNode(true));
+        });
+    } else {
+        container.innerHTML = '<div class="col-12"><div class="alert alert-warning text-center">Nenhum resultado encontrado.</div></div>';
+    }
+}
+
+function limparFiltros() {
+    // Limpa os filtros
+    document.getElementById('buscaInput').value = '';
+    document.getElementById('filtroCategoria').value = '';
+    document.getElementById('filtroSubcategoria').value = '';
+    document.getElementById('ordenarSelect').value = '';
+    
+    // Se estivermos na visão de resultados, volta para divisões
+    if (document.getElementById('resultadosView').style.display !== 'none') {
+        voltarParaDivisoes();
+    }
+}
+
+// Adiciona eventos de tecla para a busca
+document.getElementById('buscaInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        filtrar();
+    }
+});
 </script>
 </body>
 </html>
-
-
